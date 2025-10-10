@@ -27,9 +27,7 @@ import * as Provider from "./Provider";
 import * as Util from "./Util";
 import * as Setting from "../Setting";
 import * as AgreementModal from "../common/modal/AgreementModal";
-import SelfLoginButton from "./SelfLoginButton";
 import i18next from "i18next";
-import CustomGithubCorner from "../common/CustomGithubCorner";
 import {SendCodeInput} from "../common/SendCodeInput";
 import LanguageSelect from "../common/select/LanguageSelect";
 import {CaptchaModal, CaptchaRule} from "../common/modal/CaptchaModal";
@@ -40,6 +38,7 @@ import * as ProviderButton from "./ProviderButton";
 import {createFormAndSubmit, goToLink} from "../Setting";
 import WeChatLoginPanel from "./WeChatLoginPanel";
 import {CountryCodeSelect} from "../common/select/CountryCodeSelect";
+import "../openobserve-login.css";
 const FaceRecognitionCommonModal = lazy(() => import("../common/modal/FaceRecognitionCommonModal"));
 const FaceRecognitionModal = lazy(() => import("../common/modal/FaceRecognitionModal"));
 
@@ -96,7 +95,7 @@ class LoginPage extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  componentDidUpdate(prevProps, prevState) {
     if (prevState.loginMethod === undefined && this.state.loginMethod === undefined) {
       const application = this.getApplicationObj();
       this.setState({loginMethod: this.getDefaultLoginMethod(application)});
@@ -641,13 +640,10 @@ class LoginPage extends React.Component {
 
     if (signinItem.name === "Logo") {
       return (
-        <div key={resultItemKey} className="login-logo-box">
+        <div key={resultItemKey} className="login-logo-box" style={{display: "none"}}>
           <div dangerouslySetInnerHTML={{__html: ("<style>" + signinItem.customCss?.replaceAll("<style>", "").replaceAll("</style>", "") + "</style>")}} />
           {
             Setting.renderHelmet(application)
-          }
-          {
-            Setting.renderLogo(application)
           }
         </div>
       );
@@ -1152,12 +1148,24 @@ class LoginPage extends React.Component {
           !application.enableSignUp ? null : (
             signinItem.label ? Setting.renderSignupLink(application, signinItem.label) :
               (
-                <React.Fragment>
-                  {i18next.t("login:No account?")}&nbsp;
-                  {
-                    Setting.renderSignupLink(application, i18next.t("login:sign up now"))
-                  }
-                </React.Fragment>
+                <div>
+                  <style>
+                    {`
+                      .footer-signup-link a {
+                        float: none !important;
+                        display: inline !important;
+                      }
+                    `}
+                  </style>
+                  <span className="no-account-text">{i18next.t("login:No account?")}</span>&nbsp;
+                  <span className="footer-signup-link">
+                    {Setting.renderSignupLink(application, i18next.t("login:sign up now"))}
+                  </span>
+                  &nbsp;<span style={{color: "#cbd5e1"}}>|</span>&nbsp;
+                  <a href={application.homepageUrl || "/"} target="_blank" rel="noreferrer" style={{color: "#0ea5e9", textDecoration: "none"}}>
+                    Login with SSO
+                  </a>
+                </div>
               )
           )
         }
@@ -1190,27 +1198,6 @@ class LoginPage extends React.Component {
     if (this.state.userCode && this.state.userCodeStatus === "success") {
       return null;
     }
-
-    return (
-      <div>
-        <div style={{fontSize: 16, textAlign: "left"}}>
-          {i18next.t("login:Continue with")}&nbsp;:
-        </div>
-        <br />
-        <div onClick={() => {
-          const values = {};
-          values["application"] = application.name;
-          this.login(values);
-        }}>
-          <SelfLoginButton account={this.props.account} />
-        </div>
-        <br />
-        <br />
-        <div style={{fontSize: 16, textAlign: "left"}}>
-          {i18next.t("login:Or sign in with another account")}&nbsp;:
-        </div>
-      </div>
-    );
   }
 
   signInWithWebAuthn(username, values) {
@@ -1556,34 +1543,100 @@ class LoginPage extends React.Component {
     const wechatSigninMethods = application.signinMethods?.filter(method => method.name === "WeChat" && method.rule === "Login page");
 
     return (
-      <React.Fragment>
-        <CustomGithubCorner />
-        <div className="login-content" style={{margin: this.props.preview ?? this.parseOffset(application.formOffset)}}>
-          {Setting.inIframe() || Setting.isMobile() ? null : <div dangerouslySetInnerHTML={{__html: application.formCss}} />}
-          {Setting.inIframe() || !Setting.isMobile() ? null : <div dangerouslySetInnerHTML={{__html: application.formCssMobile}} />}
-          <div className={Setting.isDarkTheme(this.props.themeAlgorithm) ? "login-panel-dark" : "login-panel"}>
-            <div className="side-image" style={{display: application.formOffset !== 4 ? "none" : null}}>
-              <div dangerouslySetInnerHTML={{__html: application.formSideHtml}} />
+      <div className="dex-login-container">
+        <div className="bg-container"></div>
+        <div className="metrics-overlay">
+          <div className="metric-line metric-line-1"></div>
+          <div className="metric-line metric-line-2"></div>
+          <div className="metric-line metric-line-3"></div>
+        </div>
+        <div className="grid-bg"></div>
+        <div className="gradient-orbs">
+          <div className="orb orb-1"></div>
+          <div className="orb orb-2"></div>
+          <div className="orb orb-3"></div>
+        </div>
+
+        {/* Left side with logo and text */}
+        <div className="login-brand-section">
+          <div className="brand-container">
+            <div className="brand-logo">
+              {Setting.renderLogo(application)}
             </div>
-            <div className="login-form">
-              <div>
-                {
-                  this.renderLoginPanel(application)
-                }
-              </div>
-            </div>
-            {
-              wechatSigninMethods?.length > 0 ? (<div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
-                <div>
-                  <h3 style={{textAlign: "center", width: 320}}>{i18next.t("provider:Please use WeChat to scan the QR code and follow the official account for sign in")}</h3>
-                  <WeChatLoginPanel application={application} loginMethod={this.state.loginMethod} />
+            <div className="brand-content">
+              <p className="brand-subtitle">The complete observability platform for modern applications</p>
+              <div className="brand-features">
+                <div className="feature-item">
+                  <span className="feature-icon">📊</span>
+                  <span>Real-time monitoring and analytics</span>
+                </div>
+                <div className="feature-item">
+                  <span className="feature-icon">🔍</span>
+                  <span>Advanced search and visualization</span>
+                </div>
+                <div className="feature-item">
+                  <span className="feature-icon">⚡</span>
+                  <span>High performance and scalability</span>
                 </div>
               </div>
-              ) : null
-            }
+            </div>
           </div>
         </div>
-      </React.Fragment>
+
+        {/* Right side with form */}
+        <div className="login-form-section">
+          <div className="login-content-container">
+            <div className="modern-bordered-panel">
+              <div className="form-header">
+                <h2 className="form-title">Welcome Back</h2>
+                <p className="form-subtitle">Sign in to your OpenObserve account</p>
+              </div>
+
+              <div className="official-email-note">
+                Please use your <strong>company email ID</strong> to log in. Personal emails are not supported.
+              </div>
+
+              <div className="login-content">
+                {Setting.inIframe() || Setting.isMobile() ? null : <div dangerouslySetInnerHTML={{__html: application.formCss}} />}
+                {Setting.inIframe() || !Setting.isMobile() ? null : <div dangerouslySetInnerHTML={{__html: application.formCssMobile}} />}
+                <div className="login-panel">
+                  <div className="login-form">
+                    <div>
+                      {
+                        this.renderLoginPanel(application)
+                      }
+                    </div>
+                  </div>
+                  {
+                    wechatSigninMethods?.length > 0 ? (<div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+                      <div>
+                        <h3 style={{textAlign: "center", width: 320}}>{i18next.t("provider:Please use WeChat to scan the QR code and follow the official account for sign in")}</h3>
+                        <WeChatLoginPanel application={application} loginMethod={this.state.loginMethod} />
+                      </div>
+                    </div>
+                    ) : null
+                  }
+                </div>
+              </div>
+            </div>
+
+            {/* Footer outside the form panel */}
+            <div className="page-footer">
+              <div style={{display: "flex", gap: "12px", alignItems: "center", justifyContent: "center", marginBottom: "12px"}}>
+                <a className="modern-link" href="/terms" target="_blank" rel="noreferrer">Terms of Use
+                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "0px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
+                </a>
+                <a className="modern-link" href="/privacy" target="_blank" rel="noreferrer">Privacy Policy
+                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "0px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
+                </a>
+              </div>
+              <div className="copyright-text">
+                &copy; OpenObserve <span style={{marginLeft: "-0px"}} className="year-text">{new Date().getFullYear()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 }
