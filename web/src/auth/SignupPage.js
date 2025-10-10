@@ -24,12 +24,12 @@ import * as ApplicationBackend from "../backend/ApplicationBackend";
 import * as AgreementModal from "../common/modal/AgreementModal";
 import {SendCodeInput} from "../common/SendCodeInput";
 import RegionSelect from "../common/select/RegionSelect";
-import CustomGithubCorner from "../common/CustomGithubCorner";
-import LanguageSelect from "../common/select/LanguageSelect";
 import {withRouter} from "react-router-dom";
 import {CountryCodeSelect} from "../common/select/CountryCodeSelect";
 import * as PasswordChecker from "../common/PasswordChecker";
 import * as InvitationBackend from "../backend/InvitationBackend";
+import "../openobserve-login.css";
+import "../signup-styles.css";
 
 const formItemLayout = {
   labelCol: {
@@ -316,7 +316,7 @@ class SignupPage extends React.Component {
             },
           ]}
         >
-          <Input className="signup-username-input" placeholder={signupItem.placeholder}
+          <Input className="signup-username-input" placeholder={signupItem.placeholder || "Enter your username"}
             disabled={this.state.invitation !== undefined && this.state.invitation.username !== ""} />
         </Form.Item>
       );
@@ -336,7 +336,7 @@ class SignupPage extends React.Component {
                 },
               ]}
             >
-              <Input className="signup-first-name-input" placeholder={signupItem.placeholder} />
+              <Input className="signup-first-name-input" placeholder={signupItem.placeholder || "Enter your first name"} />
             </Form.Item>
             <Form.Item
               name="lastName"
@@ -350,7 +350,7 @@ class SignupPage extends React.Component {
                 },
               ]}
             >
-              <Input className="signup-last-name-input" placeholder={signupItem.placeholder} />
+              <Input className="signup-last-name-input" placeholder={signupItem.placeholder || "Enter your last name"} />
             </Form.Item>
           </React.Fragment>
         );
@@ -369,7 +369,7 @@ class SignupPage extends React.Component {
             },
           ]}
         >
-          <Input className="signup-name-input" placeholder={signupItem.placeholder} />
+          <Input className="signup-name-input" placeholder={signupItem.placeholder || "Enter your display name"} />
         </Form.Item>
       );
     } else if (signupItem.name === "First name" && this.state?.displayNameRule !== "First, last") {
@@ -386,7 +386,7 @@ class SignupPage extends React.Component {
             },
           ]}
         >
-          <Input className="signup-first-name-input" placeholder={signupItem.placeholder} />
+          <Input className="signup-first-name-input" placeholder={signupItem.placeholder || "Enter your first name"} />
         </Form.Item>
       );
     } else if (signupItem.name === "Last name" && this.state?.displayNameRule !== "First, last") {
@@ -403,7 +403,7 @@ class SignupPage extends React.Component {
             },
           ]}
         >
-          <Input className="signup-last-name-input" placeholder={signupItem.placeholder} />
+          <Input className="signup-last-name-input" placeholder={signupItem.placeholder || "Enter your last name"} />
         </Form.Item>
       );
     } else if (signupItem.name === "Affiliation") {
@@ -420,7 +420,7 @@ class SignupPage extends React.Component {
             },
           ]}
         >
-          <Input className="signup-affiliation-input" placeholder={signupItem.placeholder} />
+          <Input className="signup-affiliation-input" placeholder={signupItem.placeholder || "Enter your affiliation"} />
         </Form.Item>
       );
     } else if (signupItem.name === "ID card") {
@@ -442,7 +442,7 @@ class SignupPage extends React.Component {
             },
           ]}
         >
-          <Input className="signup-idcard-input" placeholder={signupItem.placeholder} />
+          <Input className="signup-idcard-input" placeholder={signupItem.placeholder || "Enter your ID card number"} />
         </Form.Item>
       );
     } else if (signupItem.name === "Country/Region") {
@@ -497,7 +497,7 @@ class SignupPage extends React.Component {
                 },
               ]}
             >
-              <Input className="signup-email-input" placeholder={signupItem.placeholder} disabled={this.state.invitation !== undefined && this.state.invitation.email !== ""} onChange={e => this.setState({email: e.target.value})} />
+              <Input className="signup-email-input" placeholder={signupItem.placeholder || "Enter your email address"} disabled={this.state.invitation !== undefined && this.state.invitation.email !== ""} onChange={e => this.setState({email: e.target.value})} />
             </Form.Item>
             {
               signupItem.rule !== "No verification" &&
@@ -571,7 +571,7 @@ class SignupPage extends React.Component {
                 >
                   <Input
                     className="signup-phone-input"
-                    placeholder={signupItem.placeholder}
+                    placeholder={signupItem.placeholder || "Enter your phone number"}
                     style={{width: "65%"}}
                     disabled={this.state.invitation !== undefined && this.state.invitation.phone !== ""}
                     onChange={e => this.setState({phone: e.target.value})}
@@ -670,7 +670,7 @@ class SignupPage extends React.Component {
             ]}
             hasFeedback
           >
-            <Input.Password className="signup-password-input" placeholder={signupItem.placeholder} onChange={(e) => {
+            <Input.Password className="signup-password-input" placeholder={signupItem.placeholder || "Enter your password"} onChange={(e) => {
               this.setState({
                 passwordPopover: PasswordChecker.renderPasswordPopover(application.organizationObj.passwordOptions, e.target.value),
               });
@@ -713,7 +713,7 @@ class SignupPage extends React.Component {
             }),
           ]}
         >
-          <Input.Password placeholder={signupItem.placeholder} />
+          <Input.Password placeholder={signupItem.placeholder || "Confirm your password"} />
         </Form.Item>
       );
     } else if (signupItem.name === "Invitation code") {
@@ -729,7 +729,7 @@ class SignupPage extends React.Component {
             },
           ]}
         >
-          <Input className="signup-invitation-code-input" placeholder={signupItem.placeholder} disabled={this.state.invitation !== undefined && this.state.invitation !== ""} />
+          <Input className="signup-invitation-code-input" placeholder={signupItem.placeholder || "Enter invitation code"} disabled={this.state.invitation !== undefined && this.state.invitation !== ""} />
         </Form.Item>
       );
     } else if (signupItem.name === "Agreement") {
@@ -744,17 +744,19 @@ class SignupPage extends React.Component {
           <Button type="primary" htmlType="submit" className="signup-button">
             {i18next.t("account:Sign Up")}
           </Button>
-          &nbsp;&nbsp;{i18next.t("signup:Have account?")}&nbsp;
-          <a className="signup-link" onClick={() => {
-            const linkInStorage = sessionStorage.getItem("signinUrl");
-            if (linkInStorage !== null && linkInStorage !== "") {
-              Setting.goToLinkSoft(this, linkInStorage);
-            } else {
-              Setting.redirectToLoginPage(application, this.props.history);
-            }
-          }}>
-            {i18next.t("signup:sign in now")}
-          </a>
+          <div className="signin-prompt">
+            <span className="have-account-text">{i18next.t("signup:Have account?")}</span>&nbsp;
+            <a className="signup-link" onClick={() => {
+              const linkInStorage = sessionStorage.getItem("signinUrl");
+              if (linkInStorage !== null && linkInStorage !== "") {
+                Setting.goToLinkSoft(this, linkInStorage);
+              } else {
+                Setting.redirectToLoginPage(application, this.props.history);
+              }
+            }}>
+              {i18next.t("signup:sign in now")}
+            </a>
+          </div>
         </Form.Item>
       );
     } else if (signupItem.name === "Providers") {
@@ -903,30 +905,88 @@ class SignupPage extends React.Component {
     }
 
     return (
-      <React.Fragment>
-        <CustomGithubCorner />
-        <div className="login-content" style={{margin: this.props.preview ?? this.parseOffset(application.formOffset)}}>
-          {Setting.inIframe() || Setting.isMobile() ? null : <div dangerouslySetInnerHTML={{__html: application.formCss}} />}
-          {Setting.inIframe() || !Setting.isMobile() ? null : <div dangerouslySetInnerHTML={{__html: application.formCssMobile}} />}
-          <div className={Setting.isDarkTheme(this.props.themeAlgorithm) ? "login-panel-dark" : "login-panel"}>
-            <div className="side-image" style={{display: application.formOffset !== 4 ? "none" : null}}>
-              <div dangerouslySetInnerHTML={{__html: application.formSideHtml}} />
+      <div className="dex-login-container dex-signup-page">
+        {/* Background elements */}
+        <div className="bg-container"></div>
+        <div className="metrics-overlay">
+          <div className="metric-line metric-line-1"></div>
+          <div className="metric-line metric-line-2"></div>
+          <div className="metric-line metric-line-3"></div>
+        </div>
+
+        <div className="grid-bg"></div>
+
+        <div className="gradient-orbs">
+          <div className="orb orb-1"></div>
+          <div className="orb orb-2"></div>
+          <div className="orb orb-3"></div>
+        </div>
+
+        {/* Left side with logo and text */}
+        <div className="login-brand-section">
+          <div className="brand-container">
+            <div className="brand-logo">
+              {Setting.renderLogo(application)}
             </div>
-            <div className="login-form">
-              {
-                Setting.renderHelmet(application)
-              }
-              {
-                Setting.renderLogo(application)
-              }
-              <LanguageSelect languages={application.organizationObj.languages} style={{top: "55px", right: "5px", position: "absolute"}} />
-              {
-                this.renderForm(application)
-              }
+            <div className="brand-content">
+              <p className="brand-subtitle">The complete observability platform for modern applications</p>
+              <div className="brand-features">
+                <div className="feature-item">
+                  <span className="feature-icon">📊</span>
+                  <span>Real-time monitoring and analytics</span>
+                </div>
+                <div className="feature-item">
+                  <span className="feature-icon">🔍</span>
+                  <span>Advanced search and visualization</span>
+                </div>
+                <div className="feature-item">
+                  <span className="feature-icon">⚡</span>
+                  <span>High performance and scalability</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </React.Fragment>
+
+        {/* Right side with form */}
+        <div className="login-form-section">
+          <div className="login-content-container">
+            <div className="modern-bordered-panel">
+              <div className="form-header">
+                <h2 className="form-title">Create Account</h2>
+                <p className="form-subtitle">Sign up for your OpenObserve account</p>
+              </div>
+              <div className="official-email-note">
+                Use your <strong>company email ID</strong> to sign up.<br />Personal emails are not supported.
+              </div>
+              <div className="login-content">
+                {Setting.inIframe() || Setting.isMobile() ? null : <div dangerouslySetInnerHTML={{__html: application.formCss}} />}
+                {Setting.inIframe() || !Setting.isMobile() ? null : <div dangerouslySetInnerHTML={{__html: application.formCssMobile}} />}
+                {
+                  Setting.renderHelmet(application)
+                }
+                {
+                  this.renderForm(application)
+                }
+              </div>
+            </div>
+            {/* Footer outside the form panel */}
+            <div className="page-footer">
+              <div style={{display: "flex", gap: "12px", alignItems: "center", justifyContent: "center", marginBottom: "12px"}}>
+                <a className="modern-link" href="/terms" target="_blank" rel="noreferrer">Terms of Use
+                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "4px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
+                </a>
+                <a className="modern-link" href="/privacy" target="_blank" rel="noreferrer">Privacy Policy
+                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "4px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
+                </a>
+              </div>
+              <div className="copyright-text">
+                &copy; OpenObserve <span className="year-text">{new Date().getFullYear()}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 }
