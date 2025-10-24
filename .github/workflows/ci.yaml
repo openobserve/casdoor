@@ -142,7 +142,7 @@ jobs:
     with:
       branch: ${{ github.event.inputs.branch || github.ref }}
       release_name: ${{ github.event.inputs.release_name }}
-      publish: ${{ github.event_name == 'push' }}
+      publish: true
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
