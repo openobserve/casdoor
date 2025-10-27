@@ -2,8 +2,9 @@
 
 /* OpenObserve Login Page Styling - Force Full Width */
 
-html,
-body {
+/* Only apply these styles when the login container is present */
+body:has(.dex-login-container),
+html:has(.dex-login-container) {
   margin: 0 !important;
   padding: 0 !important;
   overflow: hidden;
@@ -14,8 +15,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-#root,
-#parent-area {
+/* Only apply these styles when the login container is present */
+body:has(.dex-login-container) #root,
+body:has(.dex-login-container) #parent-area {
   width: 100% !important;
   height: 100% !important;
   margin: 0 !important;
@@ -1085,13 +1087,8 @@ body > div,
 }
 
 /* Prevent page scrolling - only form section should scroll */
-html {
-  overflow: hidden;
-}
 
-body {
-  overflow: hidden;
-}
+/* These styles are already handled above with :has() selector */
 
 .login-form {
   padding: 0 0 0 16px;
