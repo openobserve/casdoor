@@ -974,14 +974,14 @@ class SignupPage extends React.Component {
             <div className="page-footer">
               <div style={{display: "flex", gap: "12px", alignItems: "center", justifyContent: "center", marginBottom: "12px"}}>
                 <a className="modern-link" href="/terms" target="_blank" rel="noreferrer">Terms of Use
-                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "4px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
+                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "0px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
                 </a>
                 <a className="modern-link" href="/privacy" target="_blank" rel="noreferrer">Privacy Policy
-                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "4px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
+                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "0px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
                 </a>
               </div>
               <div className="copyright-text">
-                &copy; OpenObserve <span className="year-text">{new Date().getFullYear()}</span>
+                &copy; OpenObserve <span style={{marginLeft: "-0px"}} className="year-text">{new Date().getFullYear()}</span>
               </div>
             </div>
           </div>

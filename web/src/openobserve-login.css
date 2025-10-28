@@ -265,6 +265,24 @@ body:has(.dex-login-container) #parent-area {
   width: 100% !important;
 }
 
+/* Fix signup button alignment - remove the offset from tailFormItemLayout */
+.dex-login-container .ant-form-item:has(.signup-button) .ant-col {
+  margin-left: 0 !important;
+  max-width: none !important;
+}
+
+.dex-login-container .ant-form-item:has(.signup-button) .ant-form-item-control-input-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.dex-login-container .signup-button {
+  width: 100% !important;
+  max-width: 325px !important;
+  margin: 0 auto !important;
+}
+
 /* Form layout for signup with labels */
 .dex-login-container .ant-form {
   width: 100%;
@@ -870,7 +888,7 @@ body:has(.dex-login-container) #parent-area {
 }
 
 .modern-link {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   text-decoration: none;
   font-size: 16px;
@@ -880,6 +898,12 @@ body:has(.dex-login-container) #parent-area {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   transition: all 0.3s ease;
+  gap: 0; /* Ensure no gap between text and arrow */
+}
+
+.modern-link img {
+  margin-left: 0 !important; /* Force consistent spacing */
+  flex-shrink: 0;
 }
 
 .modern-link:hover {
@@ -897,6 +921,10 @@ body:has(.dex-login-container) #parent-area {
   line-height: 1.4;
   letter-spacing: 0;
   word-spacing: normal;
+}
+
+.copyright-text .year-text {
+  margin-left: 0 !important;
 }
 
 /* Fix notification and modal z-index to appear above OpenObserve overlay */
