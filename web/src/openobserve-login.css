@@ -292,10 +292,121 @@ body:has(.dex-login-container) #parent-area {
 /* Ensure all form items are visible in signup - more specific selectors first */
 .dex-login-container .ant-form-item:has(.signup-username),
 .dex-login-container .ant-form-item:has(.signup-display-name),
+.dex-login-container .ant-form-item:has(.signup-name),
+.dex-login-container .ant-form-item:has(.signup-name-input),
 .dex-login-container .ant-form-item:has(input[name="username"]),
-.dex-login-container .ant-form-item:has(input[name="displayName"]) {
+.dex-login-container .ant-form-item:has(input[name="displayName"]),
+.dex-login-container .ant-form-item:has(input[name="name"]) {
   display: block !important;
   visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* CRITICAL: Override ALL hiding rules for signup page form items */
+.dex-login-container.dex-signup-page .ant-form-item,
+.dex-login-container.dex-signup-page form[name="signup"] .ant-form-item {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  overflow: visible !important;
+  position: relative !important;
+  clip: unset !important;
+  clip-path: none !important;
+}
+
+/* Hide First name and Last name fields that are rendered with Ant Design Input */
+.dex-login-container.dex-signup-page .ant-form-item.signup-first-name,
+.dex-login-container.dex-signup-page .ant-form-item.signup-last-name {
+  display: none !important;
+}
+
+/* Hide form items without visible input elements (the empty boxes) */
+.dex-login-container.dex-signup-page .ant-form-item:not(
+.login-username,
+.signup-username,
+.signup-name,
+.signup-password,
+.signup-confirm,
+.signup-confirm-password,
+.signup-email,
+.signup-phone,
+.signup-code,
+.signup-affiliation,
+.signup-idcard,
+:has(button),
+:has(.ant-select),
+:has(textarea),
+:has(.ant-checkbox),
+:has(.ant-radio)
+) {
+  max-height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  opacity: 0 !important;
+}
+
+/* Ensure known form items are visible */
+.dex-login-container.dex-signup-page .ant-form-item.login-username,
+.dex-login-container.dex-signup-page .ant-form-item.signup-username,
+.dex-login-container.dex-signup-page .ant-form-item.signup-name,
+.dex-login-container.dex-signup-page .ant-form-item.signup-password,
+.dex-login-container.dex-signup-page .ant-form-item.signup-confirm,
+.dex-login-container.dex-signup-page .ant-form-item.signup-confirm-password,
+.dex-login-container.dex-signup-page .ant-form-item.signup-email,
+.dex-login-container.dex-signup-page .ant-form-item.signup-phone,
+.dex-login-container.dex-signup-page .ant-form-item.signup-code,
+.dex-login-container.dex-signup-page .ant-form-item:has(button),
+.dex-login-container.dex-signup-page .ant-form-item:has(input[type="text"].ant-input) {
+  display: block !important;
+  max-height: none !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+}
+
+/* Force Display name field visible with high specificity */
+.dex-login-container.dex-signup-page form[name="signup"] .ant-form-item.signup-name,
+.dex-login-container.dex-signup-page form[name="signup"] .ant-form-item:has(input[name="name"]),
+.dex-login-container.dex-signup-page form[name="signup"] .ant-form-item:has(.signup-name-input) {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  min-height: 70px !important;
+  position: relative !important;
+  z-index: 10 !important;
+  margin: 16px 0 !important;
+}
+
+/* Ensure Display name input is always visible */
+.dex-login-container.dex-signup-page input[name="name"],
+.dex-login-container.dex-signup-page .signup-name-input {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100% !important;
+  height: 40px !important;
+  position: relative !important;
+  z-index: 10 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure label is visible */
+.dex-login-container.dex-signup-page .ant-form-item.signup-name .ant-form-item-label,
+.dex-login-container.dex-signup-page .ant-form-item:has(input[name="name"]) .ant-form-item-label {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Ensure control wrapper is visible */
+.dex-login-container.dex-signup-page .ant-form-item.signup-name .ant-form-item-control,
+.dex-login-container.dex-signup-page .ant-form-item:has(input[name="name"]) .ant-form-item-control {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .dex-login-container .ant-form .ant-row {
@@ -648,8 +759,8 @@ body:has(.dex-login-container) #parent-area {
   padding: 0 11px !important;
 }
 
-/* Hide unwanted empty input boxes in login form */
-.dex-login-container .ant-form-item:last-child:not(
+/* Hide unwanted empty input boxes in login form - NOT on signup page */
+.dex-login-container:not(.dex-signup-page) .ant-form-item:last-child:not(
 :has(.ant-btn),
 :has(input[placeholder*="username" i]),
 :has(input[placeholder*="password" i]),
@@ -660,13 +771,14 @@ body:has(.dex-login-container) #parent-area {
   display: none !important;
 }
 
-/* Hide empty form items */
-.dex-login-container .ant-form-item:empty {
+/* Hide empty form items - NOT on signup page */
+.dex-login-container:not(.dex-signup-page) .ant-form-item:empty {
   display: none !important;
 }
 
-/* Hide form items with only whitespace */
-.dex-login-container .ant-form-item:not(
+/* Hide form items with only whitespace - DISABLED because it hides Display name field */
+
+/* .dex-login-container .ant-form-item:not(
 :has(input),
 :has(.ant-btn),
 :has(.ant-select),
@@ -674,7 +786,7 @@ body:has(.dex-login-container) #parent-area {
 :has(.ant-input)
 ) {
   display: none !important;
-}
+} */
 
 /* Additional border elimination for username field */
 .dex-login-container input[placeholder*="username" i],
