@@ -237,8 +237,6 @@ class SignupPage extends React.Component {
   }
 
   onFinish(values) {
-    const application = this.getApplicationObj();
-
     if (Array.isArray(values.gender)) {
       values.gender = values.gender.join(", ");
     }
@@ -261,25 +259,11 @@ class SignupPage extends React.Component {
     AuthBackend.signup(values)
       .then((res) => {
         if (res.status === "ok") {
-          // the user's id will be returned by `signup()`, if user signup by phone, the `username` in `values` is undefined.
-          values.username = res.data.split("/")[1];
-          if (Setting.hasPromptPage(application) && (!values.plan || !values.pricing)) {
-            AuthBackend.getAccount("")
-              .then((res) => {
-                let account = null;
-                if (res.status === "ok") {
-                  account = res.data;
-                  account.organization = res.data2;
+          // Show success message
+          Setting.showMessage("success", "Sign up successful! You can now sign in with your credentials.");
 
-                  this.onUpdateAccount(account);
-                  Setting.goToLinkSoft(this, this.getResultPath(application, values));
-                } else {
-                  Setting.showMessage("error", `${i18next.t("application:Failed to sign in")}: ${res.msg}`);
-                }
-              });
-          } else {
-            Setting.goToLinkSoft(this, this.getResultPath(application, values));
-          }
+          // Reset the form
+          this.form.current?.resetFields();
         } else {
           Setting.showMessage("error", res.msg);
         }

@@ -286,9 +286,11 @@ func (c *ApiController) Signup() {
 		}
 	}
 
-	if user.Type == "normal-user" {
-		c.SetSessionUsername(user.GetId())
-	}
+	// Commented out to prevent automatic login after signup
+	// This is intentional as we use Casdoor as OAuth connector for Dex
+	// if user.Type == "normal-user" {
+	// 	c.SetSessionUsername(user.GetId())
+	// }
 
 	if authForm.Email != "" {
 		err = object.DisableVerificationCode(authForm.Email)

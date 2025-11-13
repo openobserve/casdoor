@@ -13,12 +13,11 @@
 // limitations under the License.
 
 import React from "react";
-import {Button, Result, Spin} from "antd";
+import {Result, Spin} from "antd";
 import i18next from "i18next";
 import {authConfig} from "./Auth";
 import * as ApplicationBackend from "../backend/ApplicationBackend";
 import * as Setting from "../Setting";
-import * as AuthBackend from "./AuthBackend";
 
 class ResultPage extends React.Component {
   constructor(props) {
@@ -60,22 +59,6 @@ class ResultPage extends React.Component {
   onUpdateApplication(application) {
     this.props.onUpdateApplication(application);
   }
-
-  handleSignIn = () => {
-    AuthBackend.getAccount()
-      .then((res) => {
-        if (res.status === "ok" && res.data) {
-          const linkInStorage = sessionStorage.getItem("signinUrl");
-          if (linkInStorage !== null && linkInStorage !== "") {
-            window.location.href = linkInStorage;
-          } else {
-            Setting.goToLink("/");
-          }
-        } else {
-          Setting.redirectToLoginPage(this.state.application, this.props.history);
-        }
-      });
-  };
 
   render() {
     const application = this.state.application;
@@ -138,12 +121,7 @@ class ResultPage extends React.Component {
               <Result
                 status="success"
                 title={<span style={{color: "#f1f5f9"}}>{i18next.t("signup:Your account has been created!")}</span>}
-                subTitle={<span style={{color: "#cbd5e1"}}>{i18next.t("signup:Please click the below button to sign in")}</span>}
-                extra={[
-                  <Button type="primary" key="login" onClick={this.handleSignIn}>
-                    {i18next.t("login:Sign In")}
-                  </Button>,
-                ]}
+                subTitle={<span style={{color: "#cbd5e1"}}>You can now close this page and sign in through your application.</span>}
               />
             </div>
 
