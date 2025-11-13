@@ -7,5 +7,6 @@ pwd
 cp ../override/LoginPage.js ./src/auth/LoginPage.js
 cp ../override/SignupPage.js ./src/auth/SignupPage.js
 cp ../override/ForgetPage.js ./src/auth/ForgetPage.js
+cp ../override/ResultPage.js ./src/auth/ResultPage.js
 
 echo "✅ Override complete."
