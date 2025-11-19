@@ -31,9 +31,6 @@ on:
         required: true
 
     outputs:
-      container-image-name:
-        description: Container image name
-        value: ${{ jobs.prepare.outputs.image-name }}
       container-image-tag:
         description: Container image tag
         value: ${{ jobs.prepare.outputs.image-tag }}
@@ -49,7 +46,6 @@ jobs:
     name: Prepare Build Metadata
     runs-on: ubuntu-latest
     outputs:
-      image-name: ${{ steps.image-name.outputs.value }}
       image-tag: ${{ steps.image-tag.outputs.value }}
       git-hash: ${{ steps.git-hash.outputs.value }}
 
@@ -59,36 +55,6 @@ jobs:
         with:
           ref: ${{ github.event.inputs.branch || github.ref }}
           fetch-depth: 0
-
-      - name: Set Image Name
-        id: image-name
-        env:
-          ECR_REPO: ${{ secrets.ECR_REPO }}
-          INPUT_IMAGE_NAME: ${{ inputs.image_name }}
-        run: |
-          echo "DEBUG: ECR_REPO length: ${#ECR_REPO}"
-          echo "DEBUG: INPUT_IMAGE_NAME: '${INPUT_IMAGE_NAME}'"
-
-          # Prefer ECR_REPO secret over input, fallback to casdoor default
-          if [[ -n "${ECR_REPO}" ]]; then
-            IMAGE_NAME="${ECR_REPO}"
-            echo "Using ECR_REPO secret"
-          elif [[ -n "${INPUT_IMAGE_NAME}" && "${INPUT_IMAGE_NAME}" != "casdoor" ]]; then
-            IMAGE_NAME="${INPUT_IMAGE_NAME}"
-            echo "Using INPUT_IMAGE_NAME"
-          else
-            IMAGE_NAME="casdoor"
-            echo "Using default: casdoor"
-          fi
-
-          echo "Final IMAGE_NAME='${IMAGE_NAME}'"
-
-          if [[ -z "${IMAGE_NAME}" ]]; then
-            echo "ERROR: IMAGE_NAME is empty!"
-            exit 1
-          fi
-
-          echo "value=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Get Git Hash
         id: git-hash
@@ -144,6 +110,28 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
         if: ${{ inputs.publish }}
 
+      - name: Set Image Name
+        id: image-name
+        env:
+          ECR_REPO: ${{ secrets.ECR_REPO }}
+          INPUT_IMAGE_NAME: ${{ inputs.image_name }}
+        run: |
+          # Prefer ECR_REPO secret over input, fallback to casdoor default
+          if [[ -n "${ECR_REPO}" ]]; then
+            IMAGE_NAME="${ECR_REPO}"
+          elif [[ -n "${INPUT_IMAGE_NAME}" && "${INPUT_IMAGE_NAME}" != "casdoor" ]]; then
+            IMAGE_NAME="${INPUT_IMAGE_NAME}"
+          else
+            IMAGE_NAME="casdoor"
+          fi
+
+          if [[ -z "${IMAGE_NAME}" ]]; then
+            echo "ERROR: IMAGE_NAME is empty!"
+            exit 1
+          fi
+
+          echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
+
       - name: Format Platform Name
         id: platform-name
         run: echo "PLATFORM_TAG=${{ matrix.platform }}" | sed 's/\//-/g' >> $GITHUB_ENV
@@ -164,7 +152,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           target: STANDARD
           tags: |
-            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-${{ env.PLATFORM_TAG }}
+            ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-${{ env.PLATFORM_TAG }}
           build-args: |
             GIT_COMMIT_SHA=${{ needs.prepare.outputs.git-hash }}
           outputs: ${{ steps.build-output.outputs.value }}
@@ -226,29 +214,51 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Set Image Name
+        id: image-name
+        env:
+          ECR_REPO: ${{ secrets.ECR_REPO }}
+          INPUT_IMAGE_NAME: ${{ inputs.image_name }}
+        run: |
+          # Prefer ECR_REPO secret over input, fallback to casdoor default
+          if [[ -n "${ECR_REPO}" ]]; then
+            IMAGE_NAME="${ECR_REPO}"
+          elif [[ -n "${INPUT_IMAGE_NAME}" && "${INPUT_IMAGE_NAME}" != "casdoor" ]]; then
+            IMAGE_NAME="${INPUT_IMAGE_NAME}"
+          else
+            IMAGE_NAME="casdoor"
+          fi
+
+          if [[ -z "${IMAGE_NAME}" ]]; then
+            echo "ERROR: IMAGE_NAME is empty!"
+            exit 1
+          fi
+
+          echo "IMAGE_NAME=${IMAGE_NAME}" >> $GITHUB_ENV
+
       - name: Create manifest for versioned tag
         uses: int128/docker-manifest-create-action@v2
         with:
           tags: |
-            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}
+            ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}
           sources: |
-            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-amd64
-            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-arm64
+            ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-amd64
+            ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-arm64
 
       - name: Create manifest for version tag
         uses: int128/docker-manifest-create-action@v2
         with:
           tags: |
-            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}
+            ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.image-tag }}
           sources: |
-            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-amd64
-            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-arm64
+            ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-amd64
+            ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-arm64
 
       - name: Create manifest for latest tag
         uses: int128/docker-manifest-create-action@v2
         with:
           tags: |
-            ${{ needs.prepare.outputs.image-name }}:latest
+            ${{ env.IMAGE_NAME }}:latest
           sources: |
-            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-amd64
-            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-arm64
+            ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-amd64
+            ${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-arm64
