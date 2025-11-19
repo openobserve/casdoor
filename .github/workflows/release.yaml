@@ -27,16 +27,16 @@ jobs:
         with:
           node-version: "18"
           cache: "yarn"
-          cache-dependency-path: "casdoor/web/yarn.lock"
+          cache-dependency-path: "web/yarn.lock"
 
       - name: Build frontend
-        working-directory: ./casdoor/web
+        working-directory: ./web
         run: |
           yarn install --frozen-lockfile
           yarn build
 
       - name: Build backend binaries
-        working-directory: ./casdoor
+        working-directory: .
         run: |
           # Build for multiple architectures
           GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o bin/casdoor-linux-amd64 main.go
@@ -49,7 +49,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            casdoor/bin/casdoor-*
+            bin/casdoor-*
           generate_release_notes: true
           draft: false
           prerelease: false
