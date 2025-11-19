@@ -237,8 +237,6 @@ class SignupPage extends React.Component {
   }
 
   onFinish(values) {
-    const application = this.getApplicationObj();
-
     if (Array.isArray(values.gender)) {
       values.gender = values.gender.join(", ");
     }
@@ -261,25 +259,11 @@ class SignupPage extends React.Component {
     AuthBackend.signup(values)
       .then((res) => {
         if (res.status === "ok") {
-          // the user's id will be returned by `signup()`, if user signup by phone, the `username` in `values` is undefined.
-          values.username = res.data.split("/")[1];
-          if (Setting.hasPromptPage(application) && (!values.plan || !values.pricing)) {
-            AuthBackend.getAccount("")
-              .then((res) => {
-                let account = null;
-                if (res.status === "ok") {
-                  account = res.data;
-                  account.organization = res.data2;
+          // Show success message
+          Setting.showMessage("success", "Sign up successful! You can now sign in with your credentials.");
 
-                  this.onUpdateAccount(account);
-                  Setting.goToLinkSoft(this, this.getResultPath(application, values));
-                } else {
-                  Setting.showMessage("error", `${i18next.t("application:Failed to sign in")}: ${res.msg}`);
-                }
-              });
-          } else {
-            Setting.goToLinkSoft(this, this.getResultPath(application, values));
-          }
+          // Reset the form
+          this.form.current?.resetFields();
         } else {
           Setting.showMessage("error", res.msg);
         }
@@ -316,7 +300,7 @@ class SignupPage extends React.Component {
             },
           ]}
         >
-          <Input className="signup-username-input" placeholder={signupItem.placeholder || "Enter your username"}
+          <Input className="signup-username-input" placeholder={signupItem.placeholder || "Enter Your User Name"}
             disabled={this.state.invitation !== undefined && this.state.invitation.username !== ""} />
         </Form.Item>
       );
@@ -360,7 +344,6 @@ class SignupPage extends React.Component {
         <Form.Item
           name="name"
           className="signup-name"
-          label={(signupItem.label ? signupItem.label : (signupItem.rule === "Real name" || signupItem.rule === "First, last") ? i18next.t("general:Real name") : i18next.t("general:Display name"))}
           rules={[
             {
               required: required,
@@ -369,7 +352,22 @@ class SignupPage extends React.Component {
             },
           ]}
         >
-          <Input className="signup-name-input" placeholder={signupItem.placeholder || "Enter your display name"} />
+          <input
+            type="text"
+            className="ant-input signup-name-input"
+            placeholder={signupItem.placeholder || "Enter Your Display Name"}
+            style={{
+              background: "rgb(30 41 59 / 80%)",
+              border: "1px solid rgb(14 165 233 / 30%)",
+              borderRadius: "8px",
+              color: "#f1f5f9",
+              padding: "4px 11px",
+              width: "100%",
+              height: "40px",
+              fontSize: "14px",
+              boxSizing: "border-box",
+            }}
+          />
         </Form.Item>
       );
     } else if (signupItem.name === "First name" && this.state?.displayNameRule !== "First, last") {
@@ -497,7 +495,7 @@ class SignupPage extends React.Component {
                 },
               ]}
             >
-              <Input className="signup-email-input" placeholder={signupItem.placeholder || "Enter your email address"} disabled={this.state.invitation !== undefined && this.state.invitation.email !== ""} onChange={e => this.setState({email: e.target.value})} />
+              <Input className="signup-email-input" placeholder={signupItem.placeholder || "Enter Your Email Address"} disabled={this.state.invitation !== undefined && this.state.invitation.email !== ""} onChange={e => this.setState({email: e.target.value})} />
             </Form.Item>
             {
               signupItem.rule !== "No verification" &&
@@ -670,7 +668,7 @@ class SignupPage extends React.Component {
             ]}
             hasFeedback
           >
-            <Input.Password className="signup-password-input" placeholder={signupItem.placeholder || "Enter your password"} onChange={(e) => {
+            <Input.Password className="signup-password-input" placeholder={signupItem.placeholder || "Enter Your Password"} onChange={(e) => {
               this.setState({
                 passwordPopover: PasswordChecker.renderPasswordPopover(application.organizationObj.passwordOptions, e.target.value),
               });
@@ -713,7 +711,7 @@ class SignupPage extends React.Component {
             }),
           ]}
         >
-          <Input.Password placeholder={signupItem.placeholder || "Confirm your password"} />
+          <Input.Password placeholder={signupItem.placeholder || "Confirm Your Password"} />
         </Form.Item>
       );
     } else if (signupItem.name === "Invitation code") {
@@ -956,6 +954,7 @@ class SignupPage extends React.Component {
                 <h2 className="form-title">Create Account</h2>
                 <p className="form-subtitle">Sign up for your OpenObserve account</p>
               </div>
+
               <div className="official-email-note">
                 Only <strong>work emails</strong> are supported.
               </div>
@@ -974,14 +973,14 @@ class SignupPage extends React.Component {
             <div className="page-footer">
               <div style={{display: "flex", gap: "12px", alignItems: "center", justifyContent: "center", marginBottom: "12px"}}>
                 <a className="modern-link" href="/terms" target="_blank" rel="noreferrer">Terms of Use
-                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "4px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
+                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "0px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
                 </a>
                 <a className="modern-link" href="/privacy" target="_blank" rel="noreferrer">Privacy Policy
-                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "4px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
+                  <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "0px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
                 </a>
               </div>
               <div className="copyright-text">
-                &copy; OpenObserve <span className="year-text">{new Date().getFullYear()}</span>
+                &copy; OpenObserve <span style={{marginLeft: "-0px"}} className="year-text">{new Date().getFullYear()}</span>
               </div>
             </div>
           </div>

@@ -1162,7 +1162,7 @@ class LoginPage extends React.Component {
                     {Setting.renderSignupLink(application, i18next.t("login:sign up now"))}
                   </span>
                   &nbsp;<span style={{color: "#cbd5e1"}}>|</span>&nbsp;
-                  <a href={application.homepageUrl || "/"} target="_blank" rel="noreferrer" style={{color: "#0ea5e9", textDecoration: "none"}}>
+                  <a href={application.homepageUrl || "/"} style={{color: "#0ea5e9", textDecoration: "none"}}>
                     Login with SSO
                   </a>
                 </div>

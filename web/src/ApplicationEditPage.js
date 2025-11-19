@@ -893,14 +893,6 @@ class ApplicationEditPage extends React.Component {
         </Row>
         <Row style={{marginTop: "20px"}} >
           <Col style={{marginTop: "5px"}} span={(Setting.isMobile()) ? 22 : 2}>
-            {Setting.getLabel(i18next.t("general:Preview"), i18next.t("general:Preview - Tooltip"))} :
-          </Col>
-          {
-            this.renderSignupSigninPreview()
-          }
-        </Row>
-        <Row style={{marginTop: "20px"}} >
-          <Col style={{marginTop: "5px"}} span={(Setting.isMobile()) ? 22 : 2}>
             {Setting.getLabel(i18next.t("application:Background URL"), i18next.t("application:Background URL - Tooltip"))} :
           </Col>
           <Col span={22} style={(Setting.isMobile()) ? {maxWidth: "100%"} : {}}>
@@ -1166,14 +1158,6 @@ class ApplicationEditPage extends React.Component {
             </React.Fragment>
           )
         }
-        <Row style={{marginTop: "20px"}} >
-          <Col style={{marginTop: "5px"}} span={(Setting.isMobile()) ? 22 : 2}>
-            {Setting.getLabel(i18next.t("general:Preview"), i18next.t("general:Preview - Tooltip"))} :
-          </Col>
-          {
-            this.renderPromptPreview()
-          }
-        </Row>
       </Card>
     );
   }
