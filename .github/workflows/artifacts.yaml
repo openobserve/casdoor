@@ -66,18 +66,16 @@ jobs:
           ECR_REPO: ${{ secrets.ECR_REPO }}
           INPUT_IMAGE_NAME: ${{ inputs.image_name }}
         run: |
-          echo "DEBUG: INPUT_IMAGE_NAME=${INPUT_IMAGE_NAME}"
-          echo "DEBUG: ECR_REPO is set: $([[ -n "${ECR_REPO}" ]] && echo "yes" || echo "no")"
-
-          if [[ -n "${INPUT_IMAGE_NAME}" ]]; then
-            IMAGE_NAME="${INPUT_IMAGE_NAME}"
-          elif [[ -n "${ECR_REPO}" ]]; then
+          # Prefer ECR_REPO secret over input, fallback to casdoor default
+          if [[ -n "${ECR_REPO}" ]]; then
             IMAGE_NAME="${ECR_REPO}"
+          elif [[ -n "${INPUT_IMAGE_NAME}" && "${INPUT_IMAGE_NAME}" != "casdoor" ]]; then
+            IMAGE_NAME="${INPUT_IMAGE_NAME}"
           else
             IMAGE_NAME="casdoor"
           fi
 
-          echo "DEBUG: Final IMAGE_NAME=${IMAGE_NAME}"
+          echo "Final IMAGE_NAME=${IMAGE_NAME}"
           echo "value=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Get Git Hash
