@@ -955,19 +955,6 @@ class SignupPage extends React.Component {
                 <p className="form-subtitle">Sign up for your OpenObserve account</p>
               </div>
 
-              <div style={{
-                backgroundColor: "rgb(254 243 199 / 20%)",
-                border: "1px solid rgb(251 191 36 / 50%)",
-                borderRadius: "8px",
-                padding: "12px 16px",
-                marginBottom: "20px",
-                color: "#fcd34d",
-                fontSize: "14px",
-                textAlign: "center",
-              }}>
-                ⚠️ This is an experimental feature. Please do not sign up.
-              </div>
-
               <div className="official-email-note">
                 Only <strong>work emails</strong> are supported.
               </div>
