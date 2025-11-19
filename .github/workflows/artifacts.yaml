@@ -28,21 +28,60 @@ on:
     outputs:
       container-image-name:
         description: Container image name
-        value: ${{ jobs.container-images.outputs.name }}
-      container-image-digest:
-        description: Container image digest
-        value: ${{ jobs.container-images.outputs.digest }}
-      container-image-ref:
-        description: Container image ref
-        value: ${{ jobs.container-images.outputs.ref }}
+        value: ${{ jobs.prepare.outputs.image-name }}
+      container-image-tag:
+        description: Container image tag
+        value: ${{ jobs.prepare.outputs.image-tag }}
+      container-image-hash:
+        description: Container image git hash
+        value: ${{ jobs.prepare.outputs.git-hash }}
 
 permissions:
   contents: read
 
 jobs:
+  prepare:
+    name: Prepare Build Metadata
+    runs-on: ubuntu-latest
+    outputs:
+      image-name: ${{ steps.image-name.outputs.value }}
+      image-tag: ${{ steps.image-tag.outputs.value }}
+      git-hash: ${{ steps.git-hash.outputs.value }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch || github.ref }}
+          fetch-depth: 0
+
+      - name: Set Image Name
+        id: image-name
+        run: |
+          if [[ -n "${{ secrets.ECR_REPO }}" ]]; then
+            echo "value=${{ secrets.ECR_REPO }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=casdoor" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get Git Hash
+        id: git-hash
+        run: echo "value=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Determine Image Tag
+        id: image-tag
+        run: |
+          if [[ -n "${{ inputs.release_name }}" ]]; then
+            echo "value=${{ inputs.release_name }}" >> "$GITHUB_OUTPUT"
+          else
+            TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+            echo "value=${TAG}" >> "$GITHUB_OUTPUT"
+          fi
+
   container-images:
     name: Container Images
     runs-on: ubuntu-latest
+    needs: prepare
     strategy:
       matrix:
         platform:
@@ -54,13 +93,6 @@ jobs:
       packages: write
       id-token: write
       security-events: write
-
-    outputs:
-      name: ${{ steps.image-name.outputs.value }}
-      digest: ${{ steps.build.outputs.digest }}
-      ref: ${{ steps.image-ref.outputs.value }}
-      image-tag: ${{ steps.image-tag.outputs.value }}
-      git-hash: ${{ steps.git-hash.outputs.value }}
 
     steps:
       - name: Checkout Repository
@@ -86,34 +118,9 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
         if: ${{ inputs.publish }}
 
-      - name: Set Image Name
-        id: image-name
-        run: |
-          if [[ -n "${{ secrets.ECR_REPO }}" ]]; then
-            echo "value=${{ secrets.ECR_REPO }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "value=casdoor" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Format Platform Name
         id: platform-name
         run: echo "PLATFORM_TAG=${{ matrix.platform }}" | sed 's/\//-/g' >> $GITHUB_ENV
-
-      - name: Get Git Hash
-        id: git-hash
-        run: echo "value=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-
-      - name: Determine Image Tag
-        id: image-tag
-        run: |
-          if [[ -n "${{ inputs.release_name }}" ]]; then
-            echo "IMAGE_TAG=${{ inputs.release_name }}" >> $GITHUB_ENV
-            echo "value=${{ inputs.release_name }}" >> "$GITHUB_OUTPUT"
-          else
-            TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-            echo "IMAGE_TAG=${TAG}" >> $GITHUB_ENV
-            echo "value=${TAG}" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Determine build output
         uses: haya14busa/action-cond@v1
@@ -131,16 +138,12 @@ jobs:
           platforms: ${{ matrix.platform }}
           target: STANDARD
           tags: |
-            ${{ steps.image-name.outputs.value }}:${{ env.IMAGE_TAG }}-${{ steps.git-hash.outputs.value }}-${{ env.PLATFORM_TAG }}
+            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-${{ env.PLATFORM_TAG }}
           build-args: |
-            GIT_COMMIT_SHA=${{ steps.git-hash.outputs.value }}
+            GIT_COMMIT_SHA=${{ needs.prepare.outputs.git-hash }}
           outputs: ${{ steps.build-output.outputs.value }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Set Image Reference
-        id: image-ref
-        run: echo "value=${{ steps.image-name.outputs.value }}@${{ steps.build.outputs.digest }}" >> "$GITHUB_OUTPUT"
 
       # Security scanning
       - name: Get date
@@ -179,7 +182,7 @@ jobs:
   create-manifest:
     name: Create Multi-Platform Manifest
     runs-on: ubuntu-latest
-    needs: container-images
+    needs: [prepare, container-images]
     if: inputs.publish
 
     permissions:
@@ -201,25 +204,25 @@ jobs:
         uses: int128/docker-manifest-create-action@v2
         with:
           tags: |
-            ${{ needs.container-images.outputs.name }}:${{ needs.container-images.outputs.image-tag }}-${{ needs.container-images.outputs.git-hash }}
+            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}
           sources: |
-            ${{ needs.container-images.outputs.name }}:${{ needs.container-images.outputs.image-tag }}-${{ needs.container-images.outputs.git-hash }}-linux-amd64
-            ${{ needs.container-images.outputs.name }}:${{ needs.container-images.outputs.image-tag }}-${{ needs.container-images.outputs.git-hash }}-linux-arm64
+            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-amd64
+            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-arm64
 
       - name: Create manifest for version tag
         uses: int128/docker-manifest-create-action@v2
         with:
           tags: |
-            ${{ needs.container-images.outputs.name }}:${{ needs.container-images.outputs.image-tag }}
+            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}
           sources: |
-            ${{ needs.container-images.outputs.name }}:${{ needs.container-images.outputs.image-tag }}-${{ needs.container-images.outputs.git-hash }}-linux-amd64
-            ${{ needs.container-images.outputs.name }}:${{ needs.container-images.outputs.image-tag }}-${{ needs.container-images.outputs.git-hash }}-linux-arm64
+            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-amd64
+            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-arm64
 
       - name: Create manifest for latest tag
         uses: int128/docker-manifest-create-action@v2
         with:
           tags: |
-            ${{ needs.container-images.outputs.name }}:latest
+            ${{ needs.prepare.outputs.image-name }}:latest
           sources: |
-            ${{ needs.container-images.outputs.name }}:${{ needs.container-images.outputs.image-tag }}-${{ needs.container-images.outputs.git-hash }}-linux-amd64
-            ${{ needs.container-images.outputs.name }}:${{ needs.container-images.outputs.image-tag }}-${{ needs.container-images.outputs.git-hash }}-linux-arm64
+            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-amd64
+            ${{ needs.prepare.outputs.image-name }}:${{ needs.prepare.outputs.image-tag }}-${{ needs.prepare.outputs.git-hash }}-linux-arm64
