@@ -27,8 +27,8 @@ on:
         required: true
       AWS_REGION:
         required: true
-      ECR_REPOSITORY:
-        required: false
+      ECR_REPO:
+        required: true
 
     outputs:
       container-image-name:
@@ -63,7 +63,7 @@ jobs:
       - name: Set Image Name
         id: image-name
         env:
-          ECR_REPO: ${{ secrets.ECR_REPOSITORY }}
+          ECR_REPO: ${{ secrets.ECR_REPO }}
           INPUT_IMAGE_NAME: ${{ inputs.image_name }}
         run: |
           if [[ -n "${INPUT_IMAGE_NAME}" ]]; then
