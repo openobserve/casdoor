@@ -123,7 +123,6 @@ jobs:
           target: STANDARD
           tags: |
             ${{ steps.image-name.outputs.value }}:${{ env.PLATFORM_TAG }}-${{ env.IMAGE_TAG }}
-            ${{ steps.image-name.outputs.value }}:${{ env.PLATFORM_TAG }}-latest
           build-args: |
             GIT_COMMIT_SHA=${{ env.IMAGE_TAG }}
           outputs: ${{ steps.build-output.outputs.value }}
@@ -209,12 +208,3 @@ jobs:
           sources: |
             ${{ secrets.ECR_REPO }}:linux-amd64-${{ env.IMAGE_TAG }}
             ${{ secrets.ECR_REPO }}:linux-arm64-${{ env.IMAGE_TAG }}
-
-      - name: Create manifest for latest tag
-        uses: int128/docker-manifest-create-action@v2
-        with:
-          tags: |
-            ${{ secrets.ECR_REPO }}:latest
-          sources: |
-            ${{ secrets.ECR_REPO }}:linux-amd64-latest
-            ${{ secrets.ECR_REPO }}:linux-arm64-latest
