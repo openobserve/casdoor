@@ -60,10 +60,10 @@ jobs:
     with:
       publish: true
       release_name: ${{ github.ref_name }}
+      image_name: ${{ secrets.ECR_REPO }}
     secrets:
       AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
-      ECR_REPO: ${{ secrets.ECR_REPO }}
     permissions:
       contents: read
       packages: write

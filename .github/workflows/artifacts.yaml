@@ -16,6 +16,11 @@ on:
         description: "A overridden tag name for the release"
         required: false
         type: string
+      image_name:
+        description: "Container image name/repository"
+        required: false
+        type: string
+        default: "casdoor"
 
     secrets:
       AWS_ROLE_ARN:
@@ -23,7 +28,7 @@ on:
       AWS_REGION:
         required: true
       ECR_REPO:
-        required: true
+        required: false
 
     outputs:
       container-image-name:
@@ -58,11 +63,11 @@ jobs:
       - name: Set Image Name
         id: image-name
         run: |
-          if [[ -n "${{ secrets.ECR_REPO }}" ]]; then
-            echo "value=${{ secrets.ECR_REPO }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "value=casdoor" >> "$GITHUB_OUTPUT"
+          IMAGE_NAME="${{ inputs.image_name }}"
+          if [[ -z "${IMAGE_NAME}" ]]; then
+            IMAGE_NAME="casdoor"
           fi
+          echo "value=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
 
       - name: Get Git Hash
         id: git-hash
