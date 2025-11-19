@@ -27,7 +27,7 @@ on:
         required: true
       AWS_REGION:
         required: true
-      ECR_REPO:
+      ECR_REPOSITORY:
         required: false
 
     outputs:
@@ -62,9 +62,15 @@ jobs:
 
       - name: Set Image Name
         id: image-name
+        env:
+          ECR_REPO: ${{ secrets.ECR_REPOSITORY }}
+          INPUT_IMAGE_NAME: ${{ inputs.image_name }}
         run: |
-          IMAGE_NAME="${{ inputs.image_name }}"
-          if [[ -z "${IMAGE_NAME}" ]]; then
+          if [[ -n "${INPUT_IMAGE_NAME}" ]]; then
+            IMAGE_NAME="${INPUT_IMAGE_NAME}"
+          elif [[ -n "${ECR_REPO}" ]]; then
+            IMAGE_NAME="${ECR_REPO}"
+          else
             IMAGE_NAME="casdoor"
           fi
           echo "value=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
