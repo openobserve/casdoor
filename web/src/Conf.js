@@ -34,3 +34,7 @@ export const CustomFooter = null;
 
 // Blank or null to hide Ai Assistant button
 export const AiAssistantUrl = "https://ai.casbin.com";
+
+// OpenObserve policy URLs
+export const TermsOfServiceUrl = "https://openobserve.ai/policies/terms-of-service/";
+export const PrivacyPolicyUrl = "https://openobserve.ai/policies/privacy-policy/";

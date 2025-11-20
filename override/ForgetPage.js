@@ -24,6 +24,7 @@ import * as UserBackend from "../backend/UserBackend";
 import {ArrowLeftOutlined, CheckCircleOutlined, KeyOutlined, LockOutlined, SolutionOutlined, UserOutlined} from "@ant-design/icons";
 import {withRouter} from "react-router-dom";
 import * as PasswordChecker from "../common/PasswordChecker";
+import * as Conf from "../Conf";
 
 const {Option} = Select;
 
@@ -602,10 +603,10 @@ class ForgetPage extends React.Component {
             {/* Footer matching LoginPage */}
             <div className="page-footer">
               <div style={{display: "flex", gap: "12px", alignItems: "center", justifyContent: "center", marginBottom: "12px"}}>
-                <a className="modern-link" href="/terms" target="_blank" rel="noreferrer">Terms of Use
+                <a className="modern-link" href={Conf.TermsOfServiceUrl} target="_blank" rel="noreferrer">Terms of Use
                   <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "0px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
                 </a>
-                <a className="modern-link" href="/privacy" target="_blank" rel="noreferrer">Privacy Policy
+                <a className="modern-link" href={Conf.PrivacyPolicyUrl} target="_blank" rel="noreferrer">Privacy Policy
                   <img src={require("../assets/arrow_right.svg").default} alt="right arrow" style={{marginLeft: "0px", filter: "brightness(0) saturate(100%) invert(64%) sepia(88%) saturate(3316%) hue-rotate(169deg) brightness(101%) contrast(101%)"}} />
                 </a>
               </div>
